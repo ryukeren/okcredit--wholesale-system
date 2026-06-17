@@ -400,7 +400,11 @@ def get_connection():
         row["column_name"]  — dict-style (PostgreSQL native)
         row[0], row[1]      — integer index (SQLite compatibility)
     """
+
     url = _get_supabase_url()
+    print("Supabase URL:", url)
     if url:
+        print("Using PostgreSQL")
         return _PGConn(url)
+    print("Using SQLite")
     return _SQLiteConn(_DB_PATH)

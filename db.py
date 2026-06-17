@@ -32,15 +32,18 @@ import os
 import string
 import random
 from datetime import datetime, date
+import bcrypt
 
 # ── Database connection (auto-selects PostgreSQL or SQLite) ───────────────────
 from database import get_connection, backend_name, is_postgres
 
 
 # ── Password hashing ──────────────────────────────────────────────────────────
+
+
 def hash_password(password: str) -> str:
-    """Return a SHA-256 hex digest of the given password."""
-    return hashlib.sha256(password.encode()).hexdigest()
+    """Return SHA-256 hash."""
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -250,20 +253,34 @@ def seed_sample_data(conn):
 # ─────────────────────────────────────────────────────────────────────────────
 # AUTH HELPERS
 # ─────────────────────────────────────────────────────────────────────────────
+
 def authenticate_user(username: str, password: str):
-    """
-    Return user dict if credentials match, else None.
-    The returned dict includes owner_id (NULL for owners, int for workers).
-    Works on both PostgreSQL (_DictRow → dict) and SQLite (sqlite3.Row → dict).
-    """
     conn = get_connection()
+
     hashed = hash_password(password)
+    print("Username:", username)
+    print("MD5:", hashed)
+
     row = conn.execute(
-        "SELECT * FROM users WHERE username = ? AND password = ?",
-        (username, hashed)
+        "SELECT * FROM users WHERE username = ?",
+        (username,)
     ).fetchone()
+
+    print("User row:", row)
+
+    if row:
+        print("Stored password:", row["password"])
+        print("Match:", row["password"] == hashed)
+
     conn.close()
-    return dict(row) if row else None
+
+    if row and row["password"] == hashed:
+        return dict(row)
+
+    return None
+ 
+
+
 
 
 def register_user(
