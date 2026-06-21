@@ -294,6 +294,7 @@ def render_login():
 
 ALL_PAGES = [
     ("Dashboard",      "🏠", ["owner"]),
+    ("Business Analytics", "📊", ["owner"]),
     ("Customers",      "👥", ["owner"]),
     ("Inventory",      "📦", ["owner"]),
     ("Orders",         "🛒", ["owner"]),
@@ -412,6 +413,8 @@ def route_page(page: str):
     """Import and render the selected page view module."""
     if page == "Dashboard":
         from views.dashboard       import render
+    elif page == "Business Analytics":
+        from views.analytics       import render
     elif page == "Customers":
         from views.customers       import render
     elif page == "Inventory":
